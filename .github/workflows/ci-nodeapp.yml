@@ -1,4 +1,4 @@
-name: Build and Push Docker Image to ACR
+name: Build, Test, and Push Docker Image to ACR
 
 on:
   push:
@@ -16,12 +16,29 @@ jobs:
     environment: dev  # Use environment for OIDC federation
 
     steps:
+      # 1️⃣ Checkout code
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # 2️⃣ Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'   # use your Node.js version
+
+      # 3️⃣ Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # 4️⃣ Run tests
+      - name: Run tests
+        run: npm test
+
+      # 5️⃣ Set up Docker Buildx
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      # 6️⃣ Azure Login (OIDC)
       - name: Azure Login (OIDC)
         uses: azure/login@v2
         with:
@@ -29,9 +46,11 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+      # 7️⃣ Login to Azure Container Registry
       - name: Login to Azure Container Registry
         run: az acr login --name ${{ secrets.ACR_NAME }}
 
+      # 8️⃣ Build Docker image
       - name: Build Docker image
         run: |
           docker build \
@@ -40,6 +59,7 @@ jobs:
             -t ${{ secrets.ACR_NAME }}.azurecr.io/node-web-app:${{ github.sha }} \
             .
 
+      # 9️⃣ Push Docker image
       - name: Push Docker image
         run: |
           docker push ${{ secrets.ACR_NAME }}.azurecr.io/node-web-app:latest
