@@ -1,6 +1,6 @@
 name: Provision AKS Terraform
 
-# Manual trigger with environment, region, and resource group inputs
+# Manual trigger with environment, region, and resource group input
 on:
   workflow_dispatch:
     inputs:
