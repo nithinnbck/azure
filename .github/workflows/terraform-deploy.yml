@@ -49,16 +49,16 @@ jobs:
 
       # Initialize Terraform
       - name: Terraform Init
-        working-directory: infra/$ENVIRONMENT/$REGION/aks
+        working-directory: infra/dev/east-us/aks
         run: terraform init 
 
       # Terraform Plan
       - name: Terraform Plan
-        working-directory: infra/$ENVIRONMENT/$REGION/aks
+        working-directory: iinfra/dev/east-us/aks
         run: terraform plan -out=tfplan 
 
       # Terraform Apply
       - name: Terraform Apply
         if: github.event.inputs.environment != ''
-        working-directory: infra/$ENVIRONMENT/$REGION/aks
+        working-directory: infra/dev/east-us/aks
         run: terraform apply -auto-approve tfplan
