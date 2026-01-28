@@ -10,6 +10,12 @@ variable "location" {
   default     = "East US"
 }
 
+variable "environment" {
+  description = "Azure environment"
+  type        = string
+  default     = "dev"
+}
+
 variable "aks_cluster_name" {
   description = "AKS cluster name"
   type        = string
