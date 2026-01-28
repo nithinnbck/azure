@@ -24,6 +24,10 @@ jobs:
     runs-on: ubuntu-latest
     environment: dev
 
+    env:
+      ENVIRONMENT: ${{ github.event.inputs.environment }}
+      REGION: ${{ github.event.inputs.region }}
+
     steps:
       # Checkout repo
       - name: Checkout code
@@ -45,19 +49,16 @@ jobs:
 
       # Initialize Terraform
       - name: Terraform Init
-        working-directory: infra/${{ github.event.inputs.environment }}/${
-          { github.event.inputs.region } }/aks
+        working-directory: infra/$ENVIRONMENT/$REGION/aks
         run: terraform init 
 
       # Terraform Plan
       - name: Terraform Plan
-        working-directory: infra/${{ github.event.inputs.environment }}/${
-          { github.event.inputs.region } }/aks
+        working-directory: infra/$ENVIRONMENT/$REGION/aks
         run: terraform plan -out=tfplan 
 
       # Terraform Apply
       - name: Terraform Apply
         if: github.event.inputs.environment != ''
-        working-directory: infra/${{ github.event.inputs.environment }}/${
-          { github.event.inputs.region } }/aks
+        working-directory: infra/$ENVIRONMENT/$REGION/aks
         run: terraform apply -auto-approve tfplan
