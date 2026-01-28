@@ -7,17 +7,20 @@ on:
       - "feature/**"
 
 permissions:
-  id-token: write   # REQUIRED for OIDC
+  id-token: write   # Required for Azure OIDC login
   contents: read
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    environment: dev
+    environment: dev  # Use environment for OIDC federation
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Azure Login (OIDC)
         uses: azure/login@v2
@@ -27,12 +30,12 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Login to Azure Container Registry
-        run: |
-          az acr login --name ${{ secrets.ACR_NAME }}
+        run: az acr login --name ${{ secrets.ACR_NAME }}
 
       - name: Build Docker image
         run: |
           docker build \
+            -f Dockerfile \
             -t ${{ secrets.ACR_NAME }}.azurecr.io/node-web-app:latest \
             -t ${{ secrets.ACR_NAME }}.azurecr.io/node-web-app:${{ github.sha }} \
             .
