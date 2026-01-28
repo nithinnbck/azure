@@ -1,22 +1,17 @@
 resource "azurerm_kubernetes_cluster" "aks" {
-  name                = var.aks_cluster_name
-  location            = azurerm_resource_group.aks_rg.location
-  resource_group_name = azurerm_resource_group.aks_rg.name
-  dns_prefix          = "${var.aks_cluster_name}-dns"
-
-  kubernetes_version = var.kubernetes_version
-  node_resource_group = "${var.resource_group_name}-nodes"
+  name                = "aks-${var.environment}"
+  location            = var.location
+  resource_group_name = var.resource_group_name
+  dns_prefix          = "aks-${var.environment}"
 
   default_node_pool {
-    name       = "agentpool"
-    node_count = var.node_count
-    vm_size    = var.node_vm_size
-    vnet_subnet_id = azurerm_subnet.aks_subnet.id
+    name                = "default"
+    node_count          = 2
+    vm_size             = "Standard_DS2_v2"
+    min_count           = 1
+    max_count           = 3
     enable_auto_scaling = true
-    min_count = 3
-    max_count = 6
-    type = "VirtualMachineScaleSets"
-    mode = "System"
+    type                = "VirtualMachineScaleSets"
   }
 
   identity {
@@ -26,26 +21,26 @@ resource "azurerm_kubernetes_cluster" "aks" {
   network_profile {
     network_plugin    = "azure"
     load_balancer_sku = "standard"
-    outbound_type     = "userDefinedRouting"
   }
 
   role_based_access_control {
     enabled = true
+    azure_active_directory {
+      managed                = true
+      admin_group_object_ids = var.aad_admin_group_object_ids
+    }
   }
 
   addon_profile {
     kube_dashboard {
       enabled = false
     }
-
-    oms_agent {
-      enabled                    = true
-      log_analytics_workspace_id = azurerm_log_analytics_workspace.aks_workspace.id
+    azure_policy {
+      enabled = true
     }
   }
 
   tags = {
-    environment = "production"
-    owner       = "devops-team"
+    environment = var.environment
   }
 }
