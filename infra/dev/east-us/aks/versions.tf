@@ -13,5 +13,6 @@ terraform {
     storage_account_name = "tfstatestorageaksnithin"
     container_name       = "tfstate"
     key                  = "aks-cluster.terraform.tfstate"
+    use_azure_cli_auth   = true
   }
 }
