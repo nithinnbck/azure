@@ -1,0 +1,9 @@
+resource_group_name = "rg-aks-prod"
+location            = "East US"
+aks_cluster_name    = "aks-prod"
+node_count          = 3
+node_vm_size        = "Standard_D4s_v3"
+kubernetes_version  = "1.28.0"
+vnet_address_space  = "10.0.0.0/16"
+subnet_address_prefix = "10.0.1.0/24"
+environment            = "dev"
